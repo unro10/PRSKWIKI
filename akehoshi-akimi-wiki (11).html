@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>아케호시 아키미</title>
+<style>
+  :root{
+    --wiki-bg:#ffffff;
+    --wiki-border:#d8d3ca;
+    --wiki-text:#2b2926;
+    --wiki-muted:#6f6a62;
+    --wiki-link:#0b64c1;
+    --accent:#FF8866;
+    --accent-soft:#FFEDE6;
+    --accent-deep:#E85F3D;
+    --serif:"Noto Serif KR","Nanum Myeongjo",serif;
+    --sans:"Pretendard","Noto Sans KR","Malgun Gothic",sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:#f1efe9;
+    color:var(--wiki-text);
+    font-family:var(--sans);
+    line-height:1.7;
+    padding:32px 16px 80px;
+  }
+  .page{
+    max-width:960px;
+    margin:0 auto;
+    background:var(--wiki-bg);
+    border:1px solid var(--wiki-border);
+    box-shadow:0 1px 3px rgba(0,0,0,0.06);
+  }
+  .titlebar{
+    border-bottom:3px solid var(--accent-deep);
+    padding:20px 28px 14px;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .titlebar h1{
+    font-family:var(--serif);
+    font-size:30px;
+    margin:0;
+    letter-spacing:-0.5px;
+  }
+  .titlebar .sub{
+    font-size:13px;
+    color:var(--wiki-muted);
+  }
+  .toolbar{
+    display:flex;
+    gap:8px;
+  }
+  .toolbar button{
+    font-family:var(--sans);
+    font-size:13px;
+    border:1px solid var(--wiki-border);
+    background:#faf9f6;
+    color:var(--wiki-text);
+    padding:6px 12px;
+    cursor:pointer;
+    border-radius:3px;
+  }
+  .toolbar button.primary{
+    background:var(--accent);
+    border-color:var(--accent-deep);
+    color:#fff;
+    font-weight:600;
+  }
+  .toolbar button:hover{ filter:brightness(0.96); }
+
+  .meta-line{
+    padding:6px 28px;
+    font-size:12px;
+    color:var(--wiki-muted);
+    border-bottom:1px solid #efece5;
+  }
+
+  .content{
+    display:grid;
+    grid-template-columns:300px 1fr;
+    gap:0;
+  }
+  .article{
+    padding:24px 28px 40px;
+    border-left:1px solid var(--wiki-border);
+  }
+  .article h2{
+    font-family:var(--serif);
+    font-size:19px;
+    margin:30px 0 10px;
+    padding-bottom:6px;
+    border-bottom:1px solid var(--wiki-border);
+  }
+  .article h2:first-child{ margin-top:0; }
+  .article h3{
+    font-size:15.5px;
+    margin:18px 0 8px;
+    color:var(--accent-deep);
+  }
+  .article p{
+    margin:8px 0;
+    font-size:14.5px;
+  }
+  .article p a{
+    color:var(--wiki-link);
+    text-decoration:none;
+  }
+  .article p a:hover{
+    text-decoration:underline;
+  }
+  .article blockquote{
+    margin:12px 0 16px;
+    padding:10px 16px;
+    border-left:3px solid var(--accent);
+    background:var(--accent-soft);
+    font-family:var(--serif);
+    font-size:15px;
+    color:var(--accent-deep);
+    font-style:italic;
+  }
+  table.nickname-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13.5px;
+    margin:12px 0 20px;
+  }
+  table.nickname-table th{
+    background:var(--accent-soft);
+    color:var(--accent-deep);
+    font-weight:700;
+    padding:8px 10px;
+    border:1px solid var(--wiki-border);
+    text-align:left;
+    width:20%;
+  }
+  table.nickname-table th:not(:first-child){ width:40%; }
+  table.nickname-table td{
+    padding:7px 10px;
+    border:1px solid var(--wiki-border);
+    vertical-align:top;
+  }
+  table.nickname-table tbody tr:nth-child(even){
+    background:#faf9f6;
+  }
+
+  /* ---- Relation widget (dark card, namuwiki-style bond table) ---- */
+  .relation-widget{
+    background:#141316;
+    border-radius:10px;
+    padding:20px 18px 24px;
+    margin:12px 0 24px;
+    color:#e8e6e2;
+  }
+  .relation-center{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    margin-bottom:6px;
+  }
+  .relation-avatar{
+    width:44px;
+    height:44px;
+    min-width:44px;
+    border-radius:50%;
+    background:linear-gradient(150deg,var(--accent) 0%,#FFB199 100%);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:16px;
+    border:2px solid rgba(255,255,255,0.15);
+  }
+  .relation-center .relation-avatar{
+    width:52px; height:52px; min-width:52px; font-size:19px;
+  }
+  .relation-center-name{
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:16px;
+    color:#fff;
+  }
+  .relation-arrow{
+    text-align:center;
+    color:#8a8680;
+    font-size:16px;
+    margin-bottom:14px;
+  }
+  .relation-entries{
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+  }
+  .relation-entry{
+    position:relative;
+    display:grid;
+    grid-template-columns:84px 1fr;
+    gap:14px;
+    padding:16px 14px;
+    background:#1b1a1d;
+    border:1px solid #29282b;
+    border-radius:8px;
+  }
+  .relation-entry-left{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+    text-align:center;
+  }
+  .relation-entry-left .relation-avatar{
+    width:64px; height:64px; min-width:64px; font-size:22px;
+  }
+  .relation-name{
+    font-size:13px;
+    font-weight:700;
+    color:#f2f0ec;
+    line-height:1.3;
+  }
+  .relation-desc{
+    font-size:13px;
+    color:#b9b6b0;
+    line-height:1.6;
+    margin:0 0 10px;
+    text-align:center;
+  }
+  .relation-banner{
+    text-align:center;
+    font-size:12.5px;
+    font-weight:700;
+    color:#3a2c22;
+    background:linear-gradient(90deg,#f4d488,var(--accent) 60%,#f4d488);
+    border-radius:4px;
+    padding:6px 10px;
+    margin-bottom:8px;
+    letter-spacing:0.3px;
+  }
+  .relation-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    padding:7px 4px;
+    font-size:13px;
+    color:#e8e6e2;
+    border-top:1px solid #232226;
+  }
+  .relation-row:first-of-type{ border-top:none; }
+  .relation-title{ flex:1; }
+  .relation-rank{
+    flex-shrink:0;
+    background:var(--accent);
+    color:#fff;
+    font-size:11.5px;
+    font-weight:700;
+    padding:3px 9px;
+    border-radius:11px;
+    white-space:nowrap;
+  }
+  .relation-remove-btn{
+    position:absolute;
+    top:6px;
+    right:4px;
+    width:20px;
+    height:20px;
+    border-radius:50%;
+    border:none;
+    background:#2a292c;
+    color:#b9b6b0;
+    font-size:11px;
+    line-height:1;
+    cursor:pointer;
+    display:none;
+  }
+  body.editing .relation-remove-btn{ display:block; }
+  .relation-remove-btn:hover{ background:#3a2c22; color:#fff; }
+  .relation-add-btn{
+    display:block;
+    width:100%;
+    margin-top:14px;
+    padding:9px;
+    background:transparent;
+    border:1px dashed #3a3938;
+    border-radius:6px;
+    color:#b9b6b0;
+    font-size:13px;
+    font-family:var(--sans);
+    cursor:pointer;
+  }
+  .relation-add-btn:hover{ border-color:var(--accent); color:var(--accent); }
+  body.editing [contenteditable="true"].relation-name,
+  body.editing [contenteditable="true"].relation-desc,
+  body.editing [contenteditable="true"].relation-title,
+  body.editing [contenteditable="true"].relation-rank,
+  body.editing [contenteditable="true"].relation-avatar,
+  body.editing [contenteditable="true"].relation-banner,
+  body.editing [contenteditable="true"].relation-center-name{
+    outline-color:var(--accent);
+  }
+  @media (max-width:520px){
+    .relation-entry{ grid-template-columns:1fr; }
+    .relation-entry-left{ flex-direction:row; justify-content:flex-start; }
+  }
+
+  /* ---- 3-column grid variant (VIRTUAL SINGER) ---- */
+  .relation-entries.grid-3col{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:0;
+    background:#141316;
+    border-radius:10px;
+    overflow:hidden;
+  }
+  .relation-entries.grid-3col .relation-entry{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    background:transparent;
+    border:none;
+    border-radius:0;
+    padding:18px 12px;
+  }
+  .relation-entries.grid-3col .relation-entry:nth-child(3n+1),
+  .relation-entries.grid-3col .relation-entry:nth-child(3n+2){
+    border-right:1px solid #29282b;
+  }
+  .relation-entries.grid-3col .relation-entry:nth-child(n+4){
+    border-top:1px solid #29282b;
+  }
+  .relation-entries.grid-3col .relation-entry-left .relation-avatar{
+    width:80px; height:80px; min-width:80px; font-size:26px;
+  }
+  .relation-entries.grid-3col .relation-entry-right{ width:100%; }
+  .relation-entries.grid-3col .relation-desc{ display:none; }
+  .relation-entries.grid-3col .relation-row{
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    text-align:center;
+  }
+  @media (max-width:640px){
+    .relation-entries.grid-3col{ grid-template-columns:1fr; }
+    .relation-entries.grid-3col .relation-entry:nth-child(3n+1),
+    .relation-entries.grid-3col .relation-entry:nth-child(3n+2){ border-right:none; }
+    .relation-entries.grid-3col .relation-entry:not(:first-child){ border-top:1px solid #29282b; }
+  }
+
+  /* ---- Bond widget (bidirectional relationship card) ---- */
+  .bond-entries{
+    display:flex;
+    flex-direction:column;
+    gap:26px;
+    margin:12px 0 20px;
+  }
+  .bond-entry{ position:relative; }
+  .bond-entry .relation-remove-btn{ top:0; right:0; }
+  .bond-heading{
+    font-size:14px;
+    font-weight:700;
+    color:var(--accent-deep);
+    margin-bottom:8px;
+  }
+  .bond-card{
+    background:#141316;
+    border-radius:10px;
+    overflow:hidden;
+    color:#e8e6e2;
+  }
+  .bond-titlebar{
+    height:16px;
+    background:linear-gradient(90deg,#3a3a5c,#54547e);
+  }
+  .bond-body{
+    display:grid;
+    grid-template-columns:108px 1fr 108px;
+    gap:14px;
+    align-items:center;
+    padding:18px 14px;
+  }
+  .bond-person{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+    text-align:center;
+  }
+  .bond-person .relation-avatar{
+    width:72px; height:72px; min-width:72px; font-size:24px;
+  }
+  .bond-person .relation-name{
+    font-size:13px;
+    font-weight:700;
+    color:#f2f0ec;
+  }
+  .bond-quotes{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .bond-quote{
+    font-size:12.5px;
+    color:#dcdad6;
+    text-align:center;
+    line-height:1.6;
+  }
+  .bond-arrow{
+    text-align:center;
+    color:#8a8680;
+    font-size:14px;
+    margin:2px 0;
+  }
+  .bond-divider{
+    border-top:1px solid #2a292c;
+    margin:2px 0;
+  }
+  .bond-desc{
+    font-size:13.5px;
+    color:var(--wiki-text);
+    line-height:1.75;
+    margin:10px 0 0;
+  }
+  @media (max-width:640px){
+    .bond-body{ grid-template-columns:1fr; }
+  }
+  .intro-box{
+    margin:12px 0 20px;
+    border:1px solid #ffd4c2;
+    border-left:4px solid var(--accent);
+    background:var(--accent-soft);
+    border-radius:4px;
+    padding:16px 20px;
+  }
+  .intro-box p{ margin:0; font-size:14.5px; }
+  .intro-quote{
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:16px;
+    color:var(--accent-deep);
+    margin-bottom:10px !important;
+  }
+  .intro-role{
+    font-size:13.5px;
+    color:var(--wiki-muted);
+    margin-bottom:8px !important;
+  }
+  .intro-desc{
+    line-height:1.7;
+  }
+  .toc{
+    background:#faf9f6;
+    border:1px solid var(--wiki-border);
+    padding:12px 16px;
+    margin:0 0 24px;
+    font-size:13px;
+    width:fit-content;
+    min-width:180px;
+  }
+  .toc-title{
+    font-weight:700;
+    text-align:center;
+    margin-bottom:8px;
+  }
+  .toc ol{
+    margin:0;
+    padding-left:20px;
+  }
+  .toc ol ol{
+    padding-left:16px;
+    margin-top:2px;
+  }
+  .toc a{
+    color:var(--wiki-link);
+    text-decoration:none;
+  }
+  .toc a:hover{ text-decoration:underline; }
+
+  .taglist{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin:6px 0 18px;
+  }
+  .tag{
+    font-size:12px;
+    background:var(--accent-soft);
+    color:var(--accent-deep);
+    border:1px solid #ffd4c2;
+    padding:2px 9px;
+    border-radius:12px;
+  }
+
+  .infobox{
+    padding:22px 20px;
+  }
+  .infobox-card{
+    border:1px solid var(--wiki-border);
+  }
+  .infobox-photo{
+    aspect-ratio:3/4;
+    background:linear-gradient(160deg,var(--accent) 0%,#FFB199 55%,var(--accent-soft) 100%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    font-family:var(--serif);
+    font-size:14px;
+    text-align:center;
+    padding:16px;
+    position:relative;
+    overflow:hidden;
+  }
+  .infobox-photo img{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+  }
+  #infoboxPhotoHint{
+    opacity:0.85;
+    line-height:1.5;
+  }
+  #photoUploadBtn{
+    position:absolute;
+    bottom:8px;
+    right:8px;
+    left:8px;
+    background:rgba(0,0,0,0.55);
+    color:#fff;
+    border:1px solid rgba(255,255,255,0.6);
+    border-radius:4px;
+    padding:6px 10px;
+    font-size:12.5px;
+    cursor:pointer;
+    font-family:var(--sans);
+  }
+  #photoUploadBtn:hover{ background:rgba(0,0,0,0.7); }
+  .infobox-name{
+    background:var(--accent-deep);
+    color:#fff;
+    text-align:center;
+    padding:8px;
+    font-weight:700;
+    font-size:15px;
+    letter-spacing:0.5px;
+  }
+  .infobox-name .unit{
+    display:block;
+    font-size:11.5px;
+    font-weight:400;
+    opacity:0.9;
+    margin-top:2px;
+  }
+  table.infotable{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+  }
+  table.infotable th{
+    background:#faf5f2;
+    color:var(--wiki-muted);
+    font-weight:600;
+    text-align:left;
+    width:34%;
+    padding:8px 10px;
+    border-top:1px solid var(--wiki-border);
+    vertical-align:top;
+  }
+  table.infotable td{
+    padding:8px 10px;
+    border-top:1px solid var(--wiki-border);
+    vertical-align:top;
+  }
+  .color-chip{
+    display:inline-block;
+    width:12px;height:12px;
+    border-radius:2px;
+    margin-right:6px;
+    vertical-align:middle;
+    border:1px solid rgba(0,0,0,0.15);
+  }
+
+  [contenteditable="true"]{
+    outline:1px dashed transparent;
+    border-radius:2px;
+    transition:outline-color .15s, background .15s;
+  }
+  body.editing [contenteditable="true"]:hover{
+    outline-color:var(--accent);
+    background:#fff8f5;
+  }
+  body.editing [contenteditable="true"]:focus{
+    outline:1px solid var(--accent-deep);
+    background:#fffaf8;
+  }
+
+  .save-toast{
+    position:fixed;
+    bottom:24px;
+    left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:#2b2926;
+    color:#fff;
+    padding:9px 18px;
+    border-radius:20px;
+    font-size:13px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s, transform .25s;
+    z-index:50;
+  }
+  .save-toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+
+  .footnote{
+    padding:14px 28px;
+    font-size:11.5px;
+    color:var(--wiki-muted);
+    border-top:1px solid var(--wiki-border);
+    background:#faf9f6;
+  }
+
+  @media (max-width:720px){
+    .content{ grid-template-columns:1fr; }
+    .article{ border-left:none; border-top:1px solid var(--wiki-border); }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="titlebar">
+    <div>
+      <h1 contenteditable="false" id="charName">아케호시 아키미</h1>
+      <div class="sub">프로젝트 세카이 컬러풀 스테이지! · 원더랜즈x쇼타임</div>
+    </div>
+    <div class="toolbar">
+      <button id="editBtn">✎ 편집</button>
+      <button id="saveBtn" class="primary" style="display:none;">저장</button>
+      <button id="cancelBtn" style="display:none;">취소</button>
+    </div>
+  </div>
+  <div class="meta-line">최근 수정 시각: <span id="lastEdited">아직 수정되지 않음</span></div>
+
+  <div class="content">
+    <div class="infobox">
+      <div class="infobox-card">
+        <div class="infobox-name">
+          <span contenteditable="false" id="ibName">아케호시 아키미</span>
+          <span class="unit" contenteditable="false" id="ibUnit">원더랜즈x쇼타임</span>
+        </div>
+        <div class="infobox-photo" id="infoboxPhoto">
+          <img id="infoboxImg" src="" alt="아케호시 아키미" style="display:none;">
+          <span id="infoboxPhotoHint">이미지를 추가하려면<br>사진을 업로드하세요</span>
+          <button type="button" id="photoUploadBtn" style="display:none;">📷 사진 변경</button>
+          <input type="file" id="photoInput" accept="image/*" style="display:none;">
+        </div>
+        <table class="infotable">
+          <tr><th>성별</th><td contenteditable="false" id="ibGender">여성</td></tr>
+          <tr><th>생일</th><td contenteditable="false" id="ibBirthday">10월 17일</td></tr>
+          <tr><th>신장</th><td contenteditable="false" id="ibHeight">163cm</td></tr>
+          <tr><th>학교</th><td contenteditable="false" id="ibSchool">카미야마 고등학교</td></tr>
+          <tr><th>학년/반</th><td contenteditable="false" id="ibClass">2-C</td></tr>
+          <tr><th>취미</th><td contenteditable="false" id="ibHobby">귀여운 소품 모으기</td></tr>
+          <tr><th>특기</th><td contenteditable="false" id="ibSkill">표정연기</td></tr>
+          <tr><th>싫어하는 것</th><td contenteditable="false" id="ibDislike">포기하는 것</td></tr>
+          <tr><th>좋아하는 음식</th><td contenteditable="false" id="ibLikeFood">딸기 쇼트 케이크</td></tr>
+          <tr><th>싫어하는 음식</th><td contenteditable="false" id="ibDislikeFood">탄산음료</td></tr>
+          <tr><th>이미지 컬러</th><td contenteditable="false" id="ibColor"><span class="color-chip" style="background:#FF8866;"></span>#FF8866 / 선라이즈 코랄</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="article">
+
+      <div class="toc">
+        <div class="toc-title">목차</div>
+        <ol>
+          <li><a href="#sec-overview">1. 개요</a></li>
+          <li><a href="#sec-feature">2. 특징</a>
+            <ol>
+              <li><a href="#sec-visual">2.1. 비주얼</a></li>
+              <li><a href="#sec-character">2.2. 성격</a></li>
+              <li><a href="#sec-acting">2.3. 연기</a></li>
+              <li><a href="#sec-feature-etc">2.4. 기타</a></li>
+            </ol>
+          </li>
+          <li><a href="#sec-music">3. 음악 스타일</a>
+            <ol>
+              <li><a href="#sec-vocal">3.1. 보컬</a></li>
+              <li><a href="#sec-dance">3.2. 댄스</a></li>
+            </ol>
+          </li>
+          <li><a href="#sec-story">4. 작중 행적</a>
+            <ol>
+              <li><a href="#sec-past">4.1. 과거</a></li>
+              <li><a href="#sec-main-story">4.2. 메인스토리</a></li>
+              <li><a href="#sec-event-story">4.3. 이벤트 스토리</a></li>
+            </ol>
+          </li>
+          <li><a href="#sec-relations">5. 인간관계</a>
+            <ol>
+              <li><a href="#sec-relations-unit">5.1. 원더랜즈x쇼타임</a></li>
+              <li><a href="#sec-relations-external">5.2. 외부 관계</a></li>
+              <li><a href="#sec-relations-vsinger">5.3. VIRTUAL SINGER</a></li>
+            </ol>
+          </li>
+          <li><a href="#sec-nickname">6. 호칭</a></li>
+        </ol>
+      </div>
+
+      <h2 id="sec-overview">1. 개요</h2>
+      <div class="intro-box" id="overviewBox" contenteditable="false">
+        <p class="intro-quote">“포기하지 않을게. 모두를 위해서”</p>
+        <p class="intro-role"><b>원더랜즈x쇼타임</b>의 멤버</p>
+        <p class="intro-desc">
+          에무의 권유로 원더스테이지에서 쇼를 시작했다. 항상 다른 사람을 먼저 생각하는 성격이지만, 그 때문에
+          자신을 뒤로 미루는 경향이 있다. 원더랜즈×쇼타임의 멤버들과 함께 쇼를 만들어 가며 자신만의 답을 찾아가는 중.
+        </p>
+      </div>
+      <p contenteditable="false" id="overviewLinkLine">
+        <a href="https://namu.wiki/w/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%EC%84%B8%EC%B9%B4%EC%9D%B4%20%EC%BB%AC%EB%9F%AC%ED%92%80%20%EC%8A%A4%ED%85%8C%EC%9D%B4%EC%A7%80!%20feat.%ED%95%98%EC%B8%A0%EB%84%A4%20%EB%AF%B8%EC%BF%A0" target="_blank" rel="noopener">프로젝트 세카이 컬러풀 스테이지! feat.하츠네 미쿠</a>의 등장인물. 쇼 유닛
+        <a href="https://namu.wiki/w/%EC%9B%90%EB%8D%94%EB%9E%9C%EC%A6%88%C3%97%EC%87%BC%ED%83%80%EC%9E%84" target="_blank" rel="noopener">원더랜즈×쇼타임</a>의 멤버다.
+      </p>
+
+      <h2 id="sec-feature">2. 특징</h2>
+
+      <h3 id="sec-visual">2.1. 비주얼</h3>
+      <p contenteditable="false" id="visualText">
+        내용을 입력해주세요.
+      </p>
+
+      <h3 id="sec-character">2.2. 성격</h3>
+      <p contenteditable="false" id="characterText">
+        내용을 입력해주세요.
+      </p>
+
+      <h3 id="sec-acting">2.3. 연기</h3>
+      <p contenteditable="false" id="actingText">
+        내용을 입력해주세요.
+      </p>
+
+      <h3 id="sec-feature-etc">2.4. 기타</h3>
+      <p contenteditable="false" id="featureEtcText">
+        내용을 입력해주세요.
+      </p>
+
+      <h2 id="sec-music">3. 음악 스타일</h2>
+
+      <h3 id="sec-vocal">3.1. 보컬</h3>
+      <p contenteditable="false" id="vocalText">
+        내용을 입력해주세요.
+      </p>
+
+      <h3 id="sec-dance">3.2. 댄스</h3>
+      <p contenteditable="false" id="danceText">
+        내용을 입력해주세요.
+      </p>
+
+      <h2 id="sec-story">4. 작중 행적</h2>
+
+      <h3 id="sec-past">4.1. 과거</h3>
+      <p contenteditable="false" id="pastText">
+        내용을 입력해주세요.
+      </p>
+
+      <h3 id="sec-main-story">4.2. 메인스토리</h3>
+      <p contenteditable="false" id="mainStoryText">
+        내용을 입력해주세요.
+      </p>
+
+      <h3 id="sec-event-story">4.3. 이벤트 스토리</h3>
+      <p contenteditable="false" id="eventStoryText">
+        내용을 입력해주세요.
+      </p>
+
+      <h2 id="sec-relations">5. 인간관계</h2>
+
+      <h3 id="sec-relations-unit">5.1. 원더랜즈x쇼타임</h3>
+      <div class="bond-entries" id="relationsUnitEntries">
+        <div class="bond-entry">
+          <button type="button" class="relation-remove-btn" title="이 관계 삭제">✕</button>
+          <div class="bond-heading" contenteditable="false">· 이름을 입력해주세요</div>
+          <div class="bond-card">
+            <div class="bond-titlebar"></div>
+            <div class="bond-body">
+              <div class="bond-person">
+                <div class="relation-avatar" contenteditable="false">아</div>
+                <div class="relation-name" contenteditable="false">아케호시 아키미</div>
+              </div>
+              <div class="bond-quotes">
+                <div class="bond-quote" contenteditable="false">대사를 입력해주세요 (시점)</div>
+                <div class="bond-quote" contenteditable="false">대사를 입력해주세요 (시점)</div>
+                <div class="bond-arrow">→</div>
+                <div class="bond-divider"></div>
+                <div class="bond-arrow">←</div>
+                <div class="bond-quote" contenteditable="false">대사를 입력해주세요 (시점)</div>
+                <div class="bond-quote" contenteditable="false">대사를 입력해주세요 (시점)</div>
+              </div>
+              <div class="bond-person">
+                <div class="relation-avatar" contenteditable="false">이</div>
+                <div class="relation-name" contenteditable="false">이름을 입력해주세요</div>
+              </div>
+            </div>
+            <div class="relation-banner" contenteditable="false">✦ 인연 칭호 문구 ✦</div>
+            <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 5</span></div>
+            <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 26</span></div>
+            <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 46</span></div>
+          </div>
+          <p class="bond-desc" contenteditable="false">이 관계에 대한 설명을 입력해주세요.</p>
+        </div>
+        <div class="bond-entry">
+          <button type="button" class="relation-remove-btn" title="이 관계 삭제">✕</button>
+          <div class="bond-heading" contenteditable="false">· 이름을 입력해주세요</div>
+          <div class="bond-card">
+            <div class="bond-titlebar"></div>
+            <div class="bond-body">
+              <div class="bond-person">
+                <div class="relation-avatar" contenteditable="false">아</div>
+                <div class="relation-name" contenteditable="false">아케호시 아키미</div>
+              </div>
+              <div class="bond-quotes">
+                <div class="bond-quote" contenteditable="false">대사를 입력해주세요 (시점)</div>
+                <div class="bond-quote" contenteditable="false">대사를 입력해주세요 (시점)</div>
+                <div class="bond-arrow">→</div>
+                <div class="bond-divider"></div>
+                <div class="bond-arrow">←</div>
+                <div class="bond-quote" contenteditable="false">대사를 입력해주세요 (시점)</div>
+                <div class="bond-quote" contenteditable="false">대사를 입력해주세요 (시점)</div>
+              </div>
+              <div class="bond-person">
+                <div class="relation-avatar" contenteditable="false">이</div>
+                <div class="relation-name" contenteditable="false">이름을 입력해주세요</div>
+              </div>
+            </div>
+            <div class="relation-banner" contenteditable="false">✦ 인연 칭호 문구 ✦</div>
+            <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 5</span></div>
+            <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 26</span></div>
+            <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 46</span></div>
+          </div>
+          <p class="bond-desc" contenteditable="false">이 관계에 대한 설명을 입력해주세요.</p>
+        </div>
+        <div class="bond-entry">
+          <button type="button" class="relation-remove-btn" title="이 관계 삭제">✕</button>
+          <div class="bond-heading" contenteditable="false">· 이름을 입력해주세요</div>
+          <div class="bond-card">
+            <div class="bond-titlebar"></div>
+            <div class="bond-body">
+              <div class="bond-person">
+                <div class="relation-avatar" contenteditable="false">아</div>
+                <div class="relation-name" contenteditable="false">아케호시 아키미</div>
+              </div>
+              <div class="bond-quotes">
+                <div class="bond-quote" contenteditable="false">대사를 입력해주세요 (시점)</div>
+                <div class="bond-quote" contenteditable="false">대사를 입력해주세요 (시점)</div>
+                <div class="bond-arrow">→</div>
+                <div class="bond-divider"></div>
+                <div class="bond-arrow">←</div>
+                <div class="bond-quote" contenteditable="false">대사를 입력해주세요 (시점)</div>
+                <div class="bond-quote" contenteditable="false">대사를 입력해주세요 (시점)</div>
+              </div>
+              <div class="bond-person">
+                <div class="relation-avatar" contenteditable="false">이</div>
+                <div class="relation-name" contenteditable="false">이름을 입력해주세요</div>
+              </div>
+            </div>
+            <div class="relation-banner" contenteditable="false">✦ 인연 칭호 문구 ✦</div>
+            <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 5</span></div>
+            <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 26</span></div>
+            <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 46</span></div>
+          </div>
+          <p class="bond-desc" contenteditable="false">이 관계에 대한 설명을 입력해주세요.</p>
+        </div>
+        <div class="bond-entry">
+          <button type="button" class="relation-remove-btn" title="이 관계 삭제">✕</button>
+          <div class="bond-heading" contenteditable="false">· 이름을 입력해주세요</div>
+          <div class="bond-card">
+            <div class="bond-titlebar"></div>
+            <div class="bond-body">
+              <div class="bond-person">
+                <div class="relation-avatar" contenteditable="false">아</div>
+                <div class="relation-name" contenteditable="false">아케호시 아키미</div>
+              </div>
+              <div class="bond-quotes">
+                <div class="bond-quote" contenteditable="false">대사를 입력해주세요 (시점)</div>
+                <div class="bond-quote" contenteditable="false">대사를 입력해주세요 (시점)</div>
+                <div class="bond-arrow">→</div>
+                <div class="bond-divider"></div>
+                <div class="bond-arrow">←</div>
+                <div class="bond-quote" contenteditable="false">대사를 입력해주세요 (시점)</div>
+                <div class="bond-quote" contenteditable="false">대사를 입력해주세요 (시점)</div>
+              </div>
+              <div class="bond-person">
+                <div class="relation-avatar" contenteditable="false">이</div>
+                <div class="relation-name" contenteditable="false">이름을 입력해주세요</div>
+              </div>
+            </div>
+            <div class="relation-banner" contenteditable="false">✦ 인연 칭호 문구 ✦</div>
+            <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 5</span></div>
+            <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 26</span></div>
+            <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 46</span></div>
+          </div>
+          <p class="bond-desc" contenteditable="false">이 관계에 대한 설명을 입력해주세요.</p>
+        </div>
+        <div class="bond-entry">
+          <button type="button" class="relation-remove-btn" title="이 관계 삭제">✕</button>
+          <div class="bond-heading" contenteditable="false">· 이름을 입력해주세요</div>
+          <div class="bond-card">
+            <div class="bond-titlebar"></div>
+            <div class="bond-body">
+              <div class="bond-person">
+                <div class="relation-avatar" contenteditable="false">아</div>
+                <div class="relation-name" contenteditable="false">아케호시 아키미</div>
+              </div>
+              <div class="bond-quotes">
+                <div class="bond-quote" contenteditable="false">대사를 입력해주세요 (시점)</div>
+                <div class="bond-quote" contenteditable="false">대사를 입력해주세요 (시점)</div>
+                <div class="bond-arrow">→</div>
+                <div class="bond-divider"></div>
+                <div class="bond-arrow">←</div>
+                <div class="bond-quote" contenteditable="false">대사를 입력해주세요 (시점)</div>
+                <div class="bond-quote" contenteditable="false">대사를 입력해주세요 (시점)</div>
+              </div>
+              <div class="bond-person">
+                <div class="relation-avatar" contenteditable="false">이</div>
+                <div class="relation-name" contenteditable="false">이름을 입력해주세요</div>
+              </div>
+            </div>
+            <div class="relation-banner" contenteditable="false">✦ 인연 칭호 문구 ✦</div>
+            <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 5</span></div>
+            <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 26</span></div>
+            <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 46</span></div>
+          </div>
+          <p class="bond-desc" contenteditable="false">이 관계에 대한 설명을 입력해주세요.</p>
+        </div>
+      </div>
+      <button type="button" class="relation-add-btn" data-target="relationsUnitEntries" data-template="bond">+ 관계 추가</button>
+
+      <h3 id="sec-relations-external">5.2. 외부 관계</h3>
+      <div class="relation-widget" data-widget="external">
+        <div class="relation-center">
+          <div class="relation-avatar center-avatar" contenteditable="false">아</div>
+          <div class="relation-center-name" contenteditable="false">아케호시 아키미</div>
+        </div>
+        <div class="relation-arrow">↓</div>
+        <div class="relation-entries" id="relationsExternalEntries">
+          <div class="relation-entry">
+            <button type="button" class="relation-remove-btn" title="이 관계 삭제">✕</button>
+            <div class="relation-entry-left">
+              <div class="relation-avatar" contenteditable="false">이</div>
+              <div class="relation-name" contenteditable="false">이름을 입력해주세요</div>
+            </div>
+            <div class="relation-entry-right">
+              <p class="relation-desc" contenteditable="false">관계 설명을 입력해주세요.</p>
+              <div class="relation-banner" contenteditable="false">✦ 인연 칭호 문구 ✦</div>
+              <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 5</span></div>
+              <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 26</span></div>
+              <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 46</span></div>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="relation-add-btn" data-target="relationsExternalEntries">+ 관계 추가</button>
+      </div>
+
+      <h3 id="sec-relations-vsinger">5.3. VIRTUAL SINGER</h3>
+      <div class="relation-widget" data-widget="vsinger">
+        <div class="relation-center">
+          <div class="relation-avatar center-avatar" contenteditable="false">아</div>
+          <div class="relation-center-name" contenteditable="false">아케호시 아키미</div>
+        </div>
+        <div class="relation-arrow">↓</div>
+        <div class="relation-entries grid-3col" id="relationsVsingerEntries">
+          <div class="relation-entry">
+            <button type="button" class="relation-remove-btn" title="이 관계 삭제">✕</button>
+            <div class="relation-entry-left">
+              <div class="relation-avatar" contenteditable="false">이</div>
+              <div class="relation-name" contenteditable="false">이름을 입력해주세요</div>
+            </div>
+            <div class="relation-entry-right">
+              <p class="relation-desc" contenteditable="false">관계 설명을 입력해주세요.</p>
+              <div class="relation-banner" contenteditable="false">✦ 인연 칭호 문구 ✦</div>
+              <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 5</span></div>
+              <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 26</span></div>
+              <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 46</span></div>
+            </div>
+          </div>
+          <div class="relation-entry">
+            <button type="button" class="relation-remove-btn" title="이 관계 삭제">✕</button>
+            <div class="relation-entry-left">
+              <div class="relation-avatar" contenteditable="false">이</div>
+              <div class="relation-name" contenteditable="false">이름을 입력해주세요</div>
+            </div>
+            <div class="relation-entry-right">
+              <p class="relation-desc" contenteditable="false">관계 설명을 입력해주세요.</p>
+              <div class="relation-banner" contenteditable="false">✦ 인연 칭호 문구 ✦</div>
+              <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 5</span></div>
+              <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 26</span></div>
+              <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 46</span></div>
+            </div>
+          </div>
+          <div class="relation-entry">
+            <button type="button" class="relation-remove-btn" title="이 관계 삭제">✕</button>
+            <div class="relation-entry-left">
+              <div class="relation-avatar" contenteditable="false">이</div>
+              <div class="relation-name" contenteditable="false">이름을 입력해주세요</div>
+            </div>
+            <div class="relation-entry-right">
+              <p class="relation-desc" contenteditable="false">관계 설명을 입력해주세요.</p>
+              <div class="relation-banner" contenteditable="false">✦ 인연 칭호 문구 ✦</div>
+              <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 5</span></div>
+              <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 26</span></div>
+              <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 46</span></div>
+            </div>
+          </div>
+          <div class="relation-entry">
+            <button type="button" class="relation-remove-btn" title="이 관계 삭제">✕</button>
+            <div class="relation-entry-left">
+              <div class="relation-avatar" contenteditable="false">이</div>
+              <div class="relation-name" contenteditable="false">이름을 입력해주세요</div>
+            </div>
+            <div class="relation-entry-right">
+              <p class="relation-desc" contenteditable="false">관계 설명을 입력해주세요.</p>
+              <div class="relation-banner" contenteditable="false">✦ 인연 칭호 문구 ✦</div>
+              <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 5</span></div>
+              <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 26</span></div>
+              <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 46</span></div>
+            </div>
+          </div>
+          <div class="relation-entry">
+            <button type="button" class="relation-remove-btn" title="이 관계 삭제">✕</button>
+            <div class="relation-entry-left">
+              <div class="relation-avatar" contenteditable="false">이</div>
+              <div class="relation-name" contenteditable="false">이름을 입력해주세요</div>
+            </div>
+            <div class="relation-entry-right">
+              <p class="relation-desc" contenteditable="false">관계 설명을 입력해주세요.</p>
+              <div class="relation-banner" contenteditable="false">✦ 인연 칭호 문구 ✦</div>
+              <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 5</span></div>
+              <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 26</span></div>
+              <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 46</span></div>
+            </div>
+          </div>
+          <div class="relation-entry">
+            <button type="button" class="relation-remove-btn" title="이 관계 삭제">✕</button>
+            <div class="relation-entry-left">
+              <div class="relation-avatar" contenteditable="false">이</div>
+              <div class="relation-name" contenteditable="false">이름을 입력해주세요</div>
+            </div>
+            <div class="relation-entry-right">
+              <p class="relation-desc" contenteditable="false">관계 설명을 입력해주세요.</p>
+              <div class="relation-banner" contenteditable="false">✦ 인연 칭호 문구 ✦</div>
+              <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 5</span></div>
+              <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 26</span></div>
+              <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 46</span></div>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="relation-add-btn" data-target="relationsVsingerEntries">+ 관계 추가</button>
+      </div>
+
+      <h2 id="sec-nickname">6. 호칭</h2>
+      <table class="nickname-table">
+        <thead>
+          <tr><th>인물</th><th>부르는 호칭</th><th>불리는 호칭</th></tr>
+        </thead>
+        <tbody>
+          <tr><td contenteditable="false" id="nick1a">1인칭</td><td contenteditable="false" id="nick1b" colspan="2">&nbsp;</td></tr>
+          <tr><td contenteditable="false" id="nick2a">&nbsp;</td><td contenteditable="false" id="nick2b">&nbsp;</td><td contenteditable="false" id="nick2c">&nbsp;</td></tr>
+          <tr><td contenteditable="false" id="nick3a">&nbsp;</td><td contenteditable="false" id="nick3b">&nbsp;</td><td contenteditable="false" id="nick3c">&nbsp;</td></tr>
+          <tr><td contenteditable="false" id="nick4a">&nbsp;</td><td contenteditable="false" id="nick4b">&nbsp;</td><td contenteditable="false" id="nick4c">&nbsp;</td></tr>
+          <tr><td contenteditable="false" id="nick5a">&nbsp;</td><td contenteditable="false" id="nick5b">&nbsp;</td><td contenteditable="false" id="nick5c">&nbsp;</td></tr>
+          <tr><td contenteditable="false" id="nick6a">&nbsp;</td><td contenteditable="false" id="nick6b">&nbsp;</td><td contenteditable="false" id="nick6c">&nbsp;</td></tr>
+          <tr><td contenteditable="false" id="nick7a">&nbsp;</td><td contenteditable="false" id="nick7b">&nbsp;</td><td contenteditable="false" id="nick7c">&nbsp;</td></tr>
+          <tr><td contenteditable="false" id="nick8a">&nbsp;</td><td contenteditable="false" id="nick8b">&nbsp;</td><td contenteditable="false" id="nick8c">&nbsp;</td></tr>
+          <tr><td contenteditable="false" id="nick9a">&nbsp;</td><td contenteditable="false" id="nick9b">&nbsp;</td><td contenteditable="false" id="nick9c">&nbsp;</td></tr>
+          <tr><td contenteditable="false" id="nick10a">&nbsp;</td><td contenteditable="false" id="nick10b">&nbsp;</td><td contenteditable="false" id="nick10c">&nbsp;</td></tr>
+          <tr><td contenteditable="false" id="nick11a">&nbsp;</td><td contenteditable="false" id="nick11b">&nbsp;</td><td contenteditable="false" id="nick11c">&nbsp;</td></tr>
+          <tr><td contenteditable="false" id="nick12a">&nbsp;</td><td contenteditable="false" id="nick12b">&nbsp;</td><td contenteditable="false" id="nick12c">&nbsp;</td></tr>
+          <tr><td contenteditable="false" id="nick13a">&nbsp;</td><td contenteditable="false" id="nick13b">&nbsp;</td><td contenteditable="false" id="nick13c">&nbsp;</td></tr>
+          <tr><td contenteditable="false" id="nick14a">&nbsp;</td><td contenteditable="false" id="nick14b">&nbsp;</td><td contenteditable="false" id="nick14c">&nbsp;</td></tr>
+          <tr><td contenteditable="false" id="nick15a">&nbsp;</td><td contenteditable="false" id="nick15b">&nbsp;</td><td contenteditable="false" id="nick15c">&nbsp;</td></tr>
+          <tr><td contenteditable="false" id="nick16a">&nbsp;</td><td contenteditable="false" id="nick16b">&nbsp;</td><td contenteditable="false" id="nick16c">&nbsp;</td></tr>
+          <tr><td contenteditable="false" id="nick17a">&nbsp;</td><td contenteditable="false" id="nick17b">&nbsp;</td><td contenteditable="false" id="nick17c">&nbsp;</td></tr>
+          <tr><td contenteditable="false" id="nick18a">&nbsp;</td><td contenteditable="false" id="nick18b">&nbsp;</td><td contenteditable="false" id="nick18c">&nbsp;</td></tr>
+          <tr><td contenteditable="false" id="nick19a">&nbsp;</td><td contenteditable="false" id="nick19b">&nbsp;</td><td contenteditable="false" id="nick19c">&nbsp;</td></tr>
+          <tr><td contenteditable="false" id="nick20a">&nbsp;</td><td contenteditable="false" id="nick20b">&nbsp;</td><td contenteditable="false" id="nick20c">&nbsp;</td></tr>
+          <tr><td contenteditable="false" id="nick21a">&nbsp;</td><td contenteditable="false" id="nick21b">&nbsp;</td><td contenteditable="false" id="nick21c">&nbsp;</td></tr>
+          <tr><td contenteditable="false" id="nick22a">&nbsp;</td><td contenteditable="false" id="nick22b">&nbsp;</td><td contenteditable="false" id="nick22c">&nbsp;</td></tr>
+          <tr><td contenteditable="false" id="nick23a">&nbsp;</td><td contenteditable="false" id="nick23b">&nbsp;</td><td contenteditable="false" id="nick23c">&nbsp;</td></tr>
+          <tr><td contenteditable="false" id="nick24a">&nbsp;</td><td contenteditable="false" id="nick24b">&nbsp;</td><td contenteditable="false" id="nick24c">&nbsp;</td></tr>
+          <tr><td contenteditable="false" id="nick25a">&nbsp;</td><td contenteditable="false" id="nick25b">&nbsp;</td><td contenteditable="false" id="nick25c">&nbsp;</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+
+    </div>
+  </div>
+
+  <div class="footnote">
+    본 문서는 팬 제작 프로필로, 나무위키 문서 형식을 참고하여 작성되었습니다. 상단의 '편집' 버튼을 눌러 내용을 자유롭게 수정할 수 있습니다.
+  </div>
+</div>
+
+<div class="save-toast" id="toast">저장되었습니다</div>
+
+<script>
+(function(){
+  const editBtn = document.getElementById('editBtn');
+  const saveBtn = document.getElementById('saveBtn');
+  const cancelBtn = document.getElementById('cancelBtn');
+  const toast = document.getElementById('toast');
+  const lastEdited = document.getElementById('lastEdited');
+  const photoInput = document.getElementById('photoInput');
+  const photoUploadBtn = document.getElementById('photoUploadBtn');
+  const infoboxImg = document.getElementById('infoboxImg');
+  const infoboxPhotoHint = document.getElementById('infoboxPhotoHint');
+  const unitEntries = document.getElementById('relationsUnitEntries');
+  const externalEntries = document.getElementById('relationsExternalEntries');
+  const vsingerEntries = document.getElementById('relationsVsingerEntries');
+  let snapshot = {};
+  let relationSnapshot = { unit:'', external:'', vsinger:'' };
+  let photoDataUrl = '';
+  let photoSnapshot = '';
+  const STORAGE_KEY = 'akehoshi-akimi-profile';
+
+  const RELATION_ENTRY_TEMPLATE = `
+    <div class="relation-entry">
+      <button type="button" class="relation-remove-btn" title="이 관계 삭제">✕</button>
+      <div class="relation-entry-left">
+        <div class="relation-avatar" contenteditable="false">이</div>
+        <div class="relation-name" contenteditable="false">이름을 입력해주세요</div>
+      </div>
+      <div class="relation-entry-right">
+        <p class="relation-desc" contenteditable="false">관계 설명을 입력해주세요.</p>
+        <div class="relation-banner" contenteditable="false">✦ 인연 칭호 문구 ✦</div>
+        <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 5</span></div>
+        <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 26</span></div>
+        <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 46</span></div>
+      </div>
+    </div>`;
+
+  const BOND_ENTRY_TEMPLATE = `
+    <div class="bond-entry">
+      <button type="button" class="relation-remove-btn" title="이 관계 삭제">✕</button>
+      <div class="bond-heading" contenteditable="false">· 이름을 입력해주세요</div>
+      <div class="bond-card">
+        <div class="bond-titlebar"></div>
+        <div class="bond-body">
+          <div class="bond-person">
+            <div class="relation-avatar" contenteditable="false">아</div>
+            <div class="relation-name" contenteditable="false">아케호시 아키미</div>
+          </div>
+          <div class="bond-quotes">
+            <div class="bond-quote" contenteditable="false">대사를 입력해주세요 (시점)</div>
+            <div class="bond-quote" contenteditable="false">대사를 입력해주세요 (시점)</div>
+            <div class="bond-arrow">→</div>
+            <div class="bond-divider"></div>
+            <div class="bond-arrow">←</div>
+            <div class="bond-quote" contenteditable="false">대사를 입력해주세요 (시점)</div>
+            <div class="bond-quote" contenteditable="false">대사를 입력해주세요 (시점)</div>
+          </div>
+          <div class="bond-person">
+            <div class="relation-avatar" contenteditable="false">이</div>
+            <div class="relation-name" contenteditable="false">이름을 입력해주세요</div>
+          </div>
+        </div>
+        <div class="relation-banner" contenteditable="false">✦ 인연 칭호 문구 ✦</div>
+        <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 5</span></div>
+        <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 26</span></div>
+        <div class="relation-row"><span class="relation-title" contenteditable="false">칭호를 입력해주세요</span><span class="relation-rank" contenteditable="false">인연 랭크 46</span></div>
+      </div>
+      <p class="bond-desc" contenteditable="false">이 관계에 대한 설명을 입력해주세요.</p>
+    </div>`;
+
+  function getEditables(){
+    return document.querySelectorAll('[contenteditable]');
+  }
+
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(()=> toast.classList.remove('show'), 1800);
+  }
+
+  function setPhoto(dataUrl){
+    photoDataUrl = dataUrl || '';
+    if(photoDataUrl){
+      infoboxImg.src = photoDataUrl;
+      infoboxImg.style.display = 'block';
+      infoboxPhotoHint.style.display = 'none';
+    }else{
+      infoboxImg.src = '';
+      infoboxImg.style.display = 'none';
+      infoboxPhotoHint.style.display = '';
+    }
+  }
+
+  function collectData(){
+    const data = {};
+    getEditables().forEach(el => { if(el.id) data[el.id] = el.innerHTML; });
+    return data;
+  }
+
+  function applyData(data){
+    if(!data) return;
+    getEditables().forEach(el => {
+      if(el.id && data[el.id] !== undefined) el.innerHTML = data[el.id];
+    });
+  }
+
+  function setEditableState(isEditable){
+    getEditables().forEach(el => el.setAttribute('contenteditable', isEditable ? 'true' : 'false'));
+  }
+
+  async function loadSaved(){
+    try{
+      const res = await window.storage.get(STORAGE_KEY);
+      if(res && res.value){
+        const parsed = JSON.parse(res.value);
+        if(parsed.relations){
+          if(parsed.relations.unit !== undefined) unitEntries.innerHTML = parsed.relations.unit;
+          if(parsed.relations.external !== undefined) externalEntries.innerHTML = parsed.relations.external;
+          if(parsed.relations.vsinger !== undefined) vsingerEntries.innerHTML = parsed.relations.vsinger;
+        }
+        applyData(parsed.data);
+        if(parsed.timestamp) lastEdited.textContent = parsed.timestamp;
+        if(parsed.photo) setPhoto(parsed.photo);
+      }
+    }catch(e){
+      // no saved data yet
+    }
+  }
+
+  function enterEdit(){
+    snapshot = collectData();
+    relationSnapshot = { unit: unitEntries.innerHTML, external: externalEntries.innerHTML, vsinger: vsingerEntries.innerHTML };
+    photoSnapshot = photoDataUrl;
+    setEditableState(true);
+    document.body.classList.add('editing');
+    editBtn.style.display = 'none';
+    saveBtn.style.display = '';
+    cancelBtn.style.display = '';
+    photoUploadBtn.style.display = '';
+  }
+
+  function exitEdit(){
+    setEditableState(false);
+    document.body.classList.remove('editing');
+    editBtn.style.display = '';
+    saveBtn.style.display = 'none';
+    cancelBtn.style.display = 'none';
+    photoUploadBtn.style.display = 'none';
+  }
+
+  editBtn.addEventListener('click', enterEdit);
+
+  photoUploadBtn.addEventListener('click', () => photoInput.click());
+
+  photoInput.addEventListener('change', () => {
+    const file = photoInput.files[0];
+    if(!file) return;
+    if(file.size > 4 * 1024 * 1024){
+      showToast('이미지 용량이 너무 큽니다 (4MB 이하)');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setPhoto(reader.result);
+    reader.readAsDataURL(file);
+  });
+
+  document.addEventListener('click', (e) => {
+    const addBtn = e.target.closest('.relation-add-btn');
+    if(addBtn){
+      const target = document.getElementById(addBtn.dataset.target);
+      if(target){
+        const wrap = document.createElement('div');
+        wrap.innerHTML = RELATION_ENTRY_TEMPLATE.trim();
+        const entry = wrap.firstElementChild;
+        entry.querySelectorAll('[contenteditable]').forEach(el => el.setAttribute('contenteditable','true'));
+        target.appendChild(entry);
+      }
+      return;
+    }
+    const removeBtn = e.target.closest('.relation-remove-btn');
+    if(removeBtn){
+      const entry = removeBtn.closest('.relation-entry');
+      if(entry) entry.remove();
+    }
+  });
+
+  cancelBtn.addEventListener('click', () => {
+    applyData(snapshot);
+    unitEntries.innerHTML = relationSnapshot.unit;
+    externalEntries.innerHTML = relationSnapshot.external;
+    vsingerEntries.innerHTML = relationSnapshot.vsinger;
+    setPhoto(photoSnapshot);
+    exitEdit();
+  });
+
+  saveBtn.addEventListener('click', async () => {
+    const data = collectData();
+    const relations = { unit: unitEntries.innerHTML, external: externalEntries.innerHTML, vsinger: vsingerEntries.innerHTML };
+    const now = new Date().toLocaleString('ko-KR');
+    try{
+      await window.storage.set(STORAGE_KEY, JSON.stringify({data, relations, timestamp: now, photo: photoDataUrl}));
+      lastEdited.textContent = now;
+      showToast('저장되었습니다');
+    }catch(e){
+      showToast('저장에 실패했습니다 (이미지 용량을 줄여보세요)');
+    }
+    exitEdit();
+  });
+
+  loadSaved();
+})();
+</script>
+</body>
+</html>
